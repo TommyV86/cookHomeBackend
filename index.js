@@ -8,8 +8,8 @@ const obj = require('./obj')
 const recipeRoutes = require('./routes/recipeRoutes')
 
 // db connect
-mongoose.connect(obj.dbUri, 
-    {useNewUrlParser: true,
+mongoose.connect(obj.dbUri, {
+    useNewUrlParser: true,
     useUnifiedTopology: true
 }).then(()=>{
     console.log("----------------------------")

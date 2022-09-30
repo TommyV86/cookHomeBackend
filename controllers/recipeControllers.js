@@ -2,17 +2,25 @@ const Recipe = require('../models/recipeModel')
 
 const postRecipe = async (req, res) => {
     try {
+
         let {name, description, ingredients, difficulty, time} = req.body
-        const data = await Recipe.create({
-            name: name,
-            description: description,
-            ingredients: ingredients,
-            difficulty: difficulty,
-            time: time
-        })
-        console.log(" ** post recipe ** ")
-        console.log(data.name)
-        res.status(200).send(data)
+        const isDescExist = await Recipe.findOne({ description : description })
+
+        if(!isDescExist){
+            const data = await Recipe.create({
+                name: name,
+                description: description,
+                ingredients: ingredients,
+                difficulty: difficulty,
+                time: time,
+            })
+            console.log(" ** post recipe ** ")
+            console.log(data.name)
+            res.status(200).send(data)
+        } else {
+            console.log("xx impossible to duplicated description xx")
+            res.status(404).send("xx impossible to duplicated description xx")
+        }
     } catch (error) {
         console.log(error)
         res.status(404).send(error)
@@ -37,7 +45,10 @@ const updateRecipe = async (req, res) => {
     try {
         let name = req.body.name
         let newIngredients = req.body.ingredients
-        let data = await Recipe.updateOne({ name: name }, { $set: {ingredients: newIngredients}})
+        let data = await Recipe.updateOne(
+            { name: name }, 
+            { $set: {ingredients: newIngredients} }
+        )
         console.log(" ** recipe updated **")
         console.log(data)
         res.status(200).send(data)
@@ -47,8 +58,6 @@ const updateRecipe = async (req, res) => {
         res.status(404).send(error)
     }
 }
-
-
 
 module.exports = {
     postRecipe,
