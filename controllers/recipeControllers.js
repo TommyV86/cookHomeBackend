@@ -27,12 +27,28 @@ const postRecipe = async (req, res) => {
     }
 }
 
+const getRecipe = async (req, res) => {
+
+    try {
+
+        const recipe = await Recipe.findOne({}).sort({_id: -1})
+        console.log(recipe)
+        res.send(recipe)
+
+        return recipe
+
+    } catch (error) {
+        console.log(error);
+    }
+
+}
+
 const getRecipes = async (req, res) => {
     try {
         // faire un put pour récupérer la valeur de l'input
         let name = req.body.name
         let data = await Recipe.find({ name: name })
-        console.log(" ** get recipes ")
+        console.log(" ** get recipes **")
         console.log(data.name)
         res.status(200).send(data)
     } catch (error) {
@@ -61,6 +77,7 @@ const updateRecipe = async (req, res) => {
 
 module.exports = {
     postRecipe,
+    getRecipe,
     getRecipes,
     updateRecipe
 }
