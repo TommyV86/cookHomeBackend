@@ -31,10 +31,11 @@ const getRecipe = async (req, res) => {
     try {
         const recipe = await Recipe.findOne({}).sort({_id: -1})
         console.log(recipe)
-        res.send(recipe)
+        res.status(200).send(recipe)
         return recipe
     } catch (error) {
-        console.log(error);
+        console.log(error)
+        res.status(404).send(error)
     }
 }
 
@@ -43,18 +44,20 @@ const getRecipeById = async (req, res) => {
         reqParamsId = req.params._id
         const data = await Recipe.findOne({ _id: reqParamsId })
         console.log(data.name);
-        res.send(data)
+        res.status(200).send(data)
+        return data
     } catch (error) {
-        
+        console.log(error);
+        res.status(404).send(error)
     }
 }
 
 const getRecipes = async (req, res) => {
     try {
         let data = await Recipe.find({})
-        console.log(" ** get recipes **")
+        console.log("** get recipes **")
         console.log(data)
-        res.send(data)
+        res.status(200).send(data)
         return data
     } catch (error) {
         console.log(error)
