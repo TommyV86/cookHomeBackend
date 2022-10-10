@@ -41,7 +41,7 @@ const getRecipe = async (req, res) => {
 
 const getRecipeById = async (req, res) => {
     try {
-        reqParamsId = req.params._id
+        reqParamsId = req.params.id
         const data = await Recipe.findOne({ _id: reqParamsId })
         console.log(data.name);
         res.status(200).send(data)
@@ -83,10 +83,28 @@ const updateRecipe = async (req, res) => {
     }
 }
 
+const deleteRecipe = async (req, res) => {
+    try {
+        const id = req.params.id
+        const data = await Recipe.deleteOne({ _id: id })
+        if(data){
+            console.log("id's recipe deleted : " + id);
+            res.status(200).json(id)
+        } else {
+            console.log("delete doesn't work");
+        }
+        
+    } catch (error) {
+        console.log(error);
+    }
+    
+}
+
 module.exports = {
     postRecipe,
     getRecipe,
     getRecipeById,
     getRecipes,
-    updateRecipe
+    updateRecipe,
+    deleteRecipe
 }
