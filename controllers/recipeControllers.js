@@ -3,11 +3,12 @@ const Recipe = require('../models/recipeModel')
 const postRecipe = async (req, res) => {
     try {
 
-        let {name, description, ingredients, difficulty, time} = req.body
-        const isDescExist = await Recipe.findOne({ description : description })
+        let {origin, name, description, ingredients, difficulty, time} = req.body
+        const isDescExist = await Recipe.findOne({ name : name })
 
         if(!isDescExist){
             const data = await Recipe.create({
+                origin: origin,
                 name: name,
                 description: description,
                 ingredients: ingredients,
@@ -88,10 +89,11 @@ const deleteRecipe = async (req, res) => {
         const id = req.params.id
         const data = await Recipe.deleteOne({ _id: id })
         if(data){
-            console.log("id's recipe deleted : " + id);
+            console.log("id's recipe deleted : " + id)
             res.status(200).json(id)
         } else {
-            console.log("delete doesn't work");
+            console.log("delete doesn't work")
+            res.status(400).json("delete doesn't work")
         }
         
     } catch (error) {
