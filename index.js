@@ -6,6 +6,7 @@ const bodyParser = require('body-parser')
 const cors = require('cors')
 const obj = require('./obj')
 const recipeRoutes = require('./routes/recipeRoutes')
+const userRoutes = require('./routes/userRoutes')
 
 // db connect
 mongoose.connect(obj.dbUri, {
@@ -26,3 +27,4 @@ app.use(cors())
 const port = http.createServer(app).listen(8080)
 
 app.use(recipeRoutes.routes)
+app.use(userRoutes.routes)
