@@ -14,6 +14,9 @@ const postUser = async (req, res) => {
             //Hash password
             let pswd = req.body.passwordHash;
             let salt = await bcrypt.genSalt(10);
+            // debug
+            console.log(pswd);
+            console.log(salt);
             let pswdHash = await bcrypt.hash(pswd, salt);
             const newUser = await User.create({
                 role: obj.admin,
@@ -23,7 +26,7 @@ const postUser = async (req, res) => {
                 salt: salt,
             });
             console.log(" *** success *** ");
-            res.status(200).json(newUser);
+            return res.status(200).json(newUser);
         }
     } catch (error) {
         console.log(error);
