@@ -49,7 +49,13 @@ const getUser = async (req, res) => {
             return res.status(400).json("password is incorrect");
         } else {
             console.log("*** success login ! ***");
-            res.status(200).json(`Welcome ${user.email} !`);
+            const userData = {
+                _id: user._id,
+                role: user.role,
+                email: user.email,
+                name: user.name
+            }
+            res.status(200).json(userData);
         }
     } catch (error) {
         console.log(error);
