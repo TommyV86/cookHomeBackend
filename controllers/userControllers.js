@@ -19,7 +19,7 @@ const postUser = async (req, res) => {
             console.log(salt);
             let pswdHash = await bcrypt.hash(pswd, salt);
             const newUser = await User.create({
-                role: obj.admin,
+                role: obj.usualUser,
                 name: name,
                 email: email, 
                 passwordHash: pswdHash,
