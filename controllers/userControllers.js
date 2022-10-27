@@ -1,5 +1,7 @@
 const User = require('../models/userModel')
 const Id = require('mongodb').ObjectId;
+const nodemailer = require('nodemailer')
+const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcrypt')
 const obj = require('../obj')
 
@@ -24,6 +26,7 @@ const postUser = async (req, res) => {
                 email: email, 
                 passwordHash: pswdHash,
                 salt: salt,
+                token: ''
             });
             console.log(" *** success *** ");
             return res.status(200).json(newUser);
@@ -63,23 +66,74 @@ const getUser = async (req, res) => {
     }
 }
 
-const modifyUser = async (req, res) => {
+const getEmailforNewPswd = async (req, res) => {
     try {
-        let reqParamsId = req.params.id;
-        let idParams = Id(reqParamsId);
-        const searchIdUser = await User.findById(idParams);
-        if(searchIdUser){
-            let { name, email } = req.body;
-            const userUpdated = await User.findByIdAndUpdate(idParams, {
-                name: name,
-                email: email
+        const email = req.body.email
+        const emailUser = await User.findOne({email: email})
+        const dbEmail = emailUser.email
+        if(dbEmail === email){
+            // attribution d'un token pour servir d'index pour le changement de mdp
+            let uniqueCodev4 = uuidv4()
+            await User.updateOne(emailUser, {$set: {token: uniqueCodev4}})
+
+            // creation de l'expediteur
+            let sendMailer = obj.sendMailer
+            let pswdMailer = obj.pswdMailer
+
+            let transporter = nodemailer.createTransport({
+                service: 'gmail',
+                auth: {
+                    user: sendMailer,
+                    pass: pswdMailer
+                }
+            })
+
+            // creation du contenu de mail
+            let mailOptions = {
+                from: sendMailer,
+                to: dbEmail,
+                subject: 'Redéfinition du mdp',
+                text: `Veuillez redéfinir votre mdp en cliquant sur le lien 
+                http://localhost:3000/PasswordChange?token=${uniqueCodev4}`
+            }
+
+            // envoi du mail par l'expediteur
+            transporter.sendMail(mailOptions, (e, info) => {
+                if(e){
+                    console.log('not sent')
+                    console.log(e)
+                } else {
+                    console.log('Email sent: ' + info.response)
+                }
+            })
+            console.log(`user mail from db finded : ${dbEmail}`)
+            res.status(200).json(`user mail from data base finded : ${dbEmail}`)
+        } else {
+            console.log(`this mail ${email} doesn't exist`)
+        }
+
+    } catch (error) {
+        console.log(error);
+        res.status(404).json(error);
+    }
+}
+
+const modifyPswd = async (req, res) => {
+    try {
+        let token = req.params.token;
+        const searchTokenUser = await User.findOne({ token: token });
+        if(searchTokenUser){
+            let { password } = req.body;
+            let salt = await bcrypt.genSalt(10);
+            let pswdHash = await bcrypt.hash(password, salt);
+            await User.updateOne({token: token}, {$set:
+                {passwordHash: pswdHash}
             });
-            console.log(`*** user with id ${idParams} updated ***`);
-            res.status(200).json(`${userUpdated._id} data's updated`);
+            res.status(200).json(`success password update`);
         } else {
             console.log(" xxx failed update xxx");
-            console.log("Id : " + idParams + " doesn't exist")
-            res.status(404).json(" failed update, id " + idParams + " doesn't exist");
+            console.log("token : " + token + " doesn't exist")
+            res.status(404).json(" failed update, token " + token + " doesn't exist");
         }
     } catch (error) {
         console.log(error);
@@ -110,6 +164,7 @@ const deleteUser = async (req, res) => {
 module.exports = {
     postUser,
     getUser,
-    modifyUser,
+    getEmailforNewPswd,
+    modifyPswd,
     deleteUser
 }
