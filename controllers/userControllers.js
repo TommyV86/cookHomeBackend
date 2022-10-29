@@ -79,9 +79,10 @@ const getEmailforNewPswd = async (req, res) => {
             // creation de l'expediteur
             let sendMailer = obj.sendMailer
             let pswdMailer = obj.pswdMailer
+            let serviceMailer = obj.sendMailer
 
             let transporter = nodemailer.createTransport({
-                service: 'gmail',
+                service: serviceMailer,
                 auth: {
                     user: sendMailer,
                     pass: pswdMailer
